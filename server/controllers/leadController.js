@@ -18,13 +18,17 @@ const updateLeadStatus = asyncHandler(async (req, res) => {
   const id = String(req.params.id || '');
   if (!mongoose.isValidObjectId(id)) throw new ApiError(400, 'Invalid lead ID');
 
-  const lead = await Lead.findOneAndUpdate(
-    { _id: new mongoose.Types.ObjectId(id) },
-    { status: req.body.status },
-    { new: true }
-  );
+  const allowedStatuses = new Set(['new', 'contacted', 'converted', 'closed']);
+  const requestedStatus = String(req.body.status || '').trim();
+  if (!allowedStatuses.has(requestedStatus)) throw new ApiError(422, 'Invalid lead status');
 
+  const filter = mongoose.sanitizeFilter({ _id: id });
+  const lead = await Lead.findOne(filter);
   if (!lead) throw new ApiError(404, 'Lead not found');
+
+  lead.status = requestedStatus;
+  await lead.save();
+
   res.status(200).json(new ApiResponse(200, lead, 'Lead updated'));
 });
 
