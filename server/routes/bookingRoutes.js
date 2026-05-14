@@ -8,6 +8,6 @@ const router = express.Router();
 router.use(protect);
 
 router.get('/', getBookings);
-router.post('/', [body('client').notEmpty(), body('eventDate').isISO8601(), validate], createBooking);
+router.post('/', [body('client').isMongoId(), body('eventDate').isISO8601(), validate], createBooking);
 
 module.exports = router;
