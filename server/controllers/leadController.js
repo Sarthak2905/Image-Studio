@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Lead = require('../models/Lead');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiResponse = require('../utils/ApiResponse');
@@ -14,7 +15,15 @@ const getLeads = asyncHandler(async (req, res) => {
 });
 
 const updateLeadStatus = asyncHandler(async (req, res) => {
-  const lead = await Lead.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
+  const id = String(req.params.id || '');
+  if (!mongoose.isValidObjectId(id)) throw new ApiError(400, 'Invalid lead ID');
+
+  const lead = await Lead.findOneAndUpdate(
+    { _id: new mongoose.Types.ObjectId(id) },
+    { status: req.body.status },
+    { new: true }
+  );
+
   if (!lead) throw new ApiError(404, 'Lead not found');
   res.status(200).json(new ApiResponse(200, lead, 'Lead updated'));
 });
