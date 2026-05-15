@@ -1,0 +1,7 @@
+:root {
+  --gold: #c6a16e;
+}
+
+.luxury-gradient {
+  background: radial-gradient(circle at top, rgba(198, 161, 110, 0.22), rgba(11, 11, 13, 0.95) 55%);
+}
